@@ -8,6 +8,16 @@ Used for creating continous linear piecewise functions that go through given poi
         self.keyframes = []
     def add_keyframe(self, newKeyframe):
         insort(self.keyframes, newKeyframe)
+    def load_from_file(self, file):
+        time, rot, x, y = None, None, 0, 0
+        for i in file:
+            data =[float(j) for j in i.split()]
+            if len(data) == 4:
+                time, rot, x, y = data
+            else:
+                time, rot = data
+            self.add_keyframe(KeyFrame(time, rot, x, y))
+        return self
     def switch_between_frames(self, k1, k2, time):
         '''
             [KeyFrame], [KeyFrame], int -> int, int ,int
@@ -27,17 +37,17 @@ Used for creating continous linear piecewise functions that go through given poi
                     k1, k2 = self.keyframes[i], self.keyframes[i+1]
                     return self.switch_between_frames(k1,k2,time)
                 
-    def transition(self, nextAnimationKeyframes, lastTime, time, duration):
+    def transition(self, nextAnimation, lastTime, time, duration):
         '''
 lastTime is the last time value that was given to the current_position of the current animation
 time is the current value to be used for transitioning between the two animations
 duration is the amount of time it should take to transfer to the next animation
 '''
-        lastAnimationPosition = self.current_position(lastTime).get_clone()
-        nextAnimationPosition = nextAnimationKeyframes.keyframes[0].get_clone()
-        lastAnimationPosition.time = 0
+        lastAnimationPosition = self.current_position(lastTime)
+        nextAnimationPosition = nextAnimation.keyframes[0].get_clone()
         nextAnimationPosition.time = duration
-        return self.switch_between_frames(lastAnimationPosition, nextAnimationPosition, lastTime-time), lastTime-time>=duration
+        #print(time-lastTime)
+        return self.switch_between_frames(KeyFrame(0, lastAnimationPosition[0], lastAnimationPosition[1], lastAnimationPosition[2]), nextAnimationPosition, time-lastTime), time-lastTime>duration
         
     def visualize(self,resolution = 1):
         rotations = [i.rotation for i in self.keyframes]
