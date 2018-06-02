@@ -10,7 +10,7 @@ class Limb:
         self.parent_limb = None
         self.rotatePoint = rotatePoint
         self.reflect = False
-    def get_tip_pos(self, integer = False):
+    def get_tip_pos(self, calling_limb= None, integer = False):
         tipX, tipY = self.get_pos()
         if self.reflect:
             tipX+=self.length*_cosd(180+self.get_rotation())
@@ -29,14 +29,14 @@ class Limb:
             else:
                 rotateBlit(surface, self.sprite, self.get_pos(), self.rotatePoint, self.get_rotation())
             surface.set_at(self.get_pos(True), (255,0,0))
-            surface.set_at(self.get_tip_pos(True), (0,0,255))
+            surface.set_at(self.get_tip_pos(self, True), (0,0,255))
         else:
             if self.reflect:
                 rotateBlit(surface, self.sprite, self.get_pos(), self.rotatePoint, 180-self.get_rotation())
             else:
                 rotateBlit(surface, self.sprite, self.get_pos(), self.rotatePoint, self.get_rotation())
             surface.set_at(self.get_pos(True), (255,0,0))
-            surface.set_at(self.get_tip_pos(True), (0,0,255))
+            surface.set_at(self.get_tip_pos(self, True), (0,0,255))
     def get_rotation(self):
         rotOut = self.rotation
         limb = self.parent_limb
@@ -52,7 +52,7 @@ class Limb:
             else:
                 return x, y
         else:
-            x, y = self.parent_limb.get_tip_pos()
+            x, y = self.parent_limb.get_tip_pos(self)
             if integer:
                 return int(x), int(y)
             else:

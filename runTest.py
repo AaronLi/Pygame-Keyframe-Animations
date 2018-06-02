@@ -1,13 +1,17 @@
 from pygame import *
-from rotateMain import rotateBlit, _sind, _cosd
+from rotateMain import rotateBlit, _sind, _cosd, _atand
 from Limb import Limb
 from keyframelist import KeyFrame, KeyFrameList
+import glob
+from Body import Body
 screen = display.set_mode((800,600))
 running = True
 legSpriteR = Surface((32,8),SRCALPHA)
 legSpriteL = Surface((32,8),SRCALPHA)
 legSpriteR.fill((200,200,200))
 legSpriteL.fill((255,255,255))
+bodySprite = Surface((36,8), SRCALPHA)
+bodySprite.fill((255,255,255))
 font.init()
 aFont = font.SysFont('Consolas',30)
 
@@ -19,49 +23,40 @@ upperLegR = Limb(400,300,0,28,legSpriteR, (2,4))
 lowerLegR = Limb(0,0,0,28,legSpriteR, (2,4))
 lowerLegR.parent_limb = upperLegR
 
-upperLegKeyframesWalkingR = KeyFrameList().load_from_file(open('keyframes/walking/upperLegWalkingR.txt'))
-upperLegKeyframesWalkingL = KeyFrameList().load_from_file(open('keyframes/walking/upperLegWalkingL.txt'))
-lowerLegKeyframesWalkingR = KeyFrameList().load_from_file(open('keyframes/walking/lowerLegWalkingR.txt'))
-lowerLegKeyframesWalkingL = KeyFrameList().load_from_file(open('keyframes/walking/lowerLegWalkingL.txt'))
+
+body = Body(bodySprite, 400,300)
+body.add_limb(upperLegR, (18,0), 'upperLegR')
+body.add_limb(upperLegL, (18,0), 'upperLegL')
+body.add_draw_limb(lowerLegR, 'lowerLegR')
+body.add_draw_limb(lowerLegL, 'lowerLegL')
+body.rotation = 270
+body.set_animation('standing')
+upperLegKeyframesWalkingR = KeyFrameList().load_from_file(open('keyframes/walking/upperLegR.txt'))
+upperLegKeyframesWalkingL = KeyFrameList().load_from_file(open('keyframes/walking/upperLegL.txt'))
+lowerLegKeyframesWalkingR = KeyFrameList().load_from_file(open('keyframes/walking/lowerLegR.txt'))
+lowerLegKeyframesWalkingL = KeyFrameList().load_from_file(open('keyframes/walking/lowerLegL.txt'))
 
 upperLegKeyframesCrouchingL = KeyFrameList().load_from_file(open('keyframes/crouching/upperLegCrouchingL.txt'))
 upperLegKeyframesCrouchingR = KeyFrameList().load_from_file(open('keyframes/crouching/upperLegCrouchingR.txt'))
 lowerLegKeyframesCrouchingL = KeyFrameList().load_from_file(open('keyframes/crouching/lowerLegCrouchingL.txt'))
 lowerLegKeyframesCrouchingR = KeyFrameList().load_from_file(open('keyframes/crouching/lowerLegCrouchingR.txt'))
 
-upperLegStandingL = KeyFrameList()
-upperLegStandingL.add_keyframe(KeyFrame(0,275))
-upperLegStandingL.add_keyframe(KeyFrame(100,285))
-upperLegStandingL.add_keyframe(KeyFrame(200,275))
+upperLegStandingL = KeyFrameList().load_from_file(open('keyframes/standing/upperLegL.txt'))
+upperLegStandingR = KeyFrameList().load_from_file(open('keyframes/standing/upperLegR.txt'))
+lowerLegStandingL = KeyFrameList().load_from_file(open('keyframes/standing/lowerLegL.txt'))
+lowerLegStandingR = KeyFrameList().load_from_file(open('keyframes/standing/lowerLegR.txt'))
 
-upperLegStandingR = KeyFrameList()
-upperLegStandingR.add_keyframe(KeyFrame(0,265))
-upperLegStandingR.add_keyframe(KeyFrame(100,260))
-upperLegStandingR.add_keyframe(KeyFrame(200,265))
+upperLegRunningL = KeyFrameList().load_from_file(open('keyframes/running/upperLegL.txt'))
+upperLegRunningR = KeyFrameList().load_from_file(open('keyframes/running/upperLegR.txt'))
+lowerLegRunningL = KeyFrameList().load_from_file(open('keyframes/running/lowerLegL.txt'))
+lowerLegRunningR = KeyFrameList().load_from_file(open('keyframes/running/lowerLegR.txt'))
 
-lowerLegStandingL = KeyFrameList()
-lowerLegStandingL.add_keyframe(KeyFrame(0,-5))
-lowerLegStandingL.add_keyframe(KeyFrame(100,-15))
-lowerLegStandingL.add_keyframe(KeyFrame(200,-5))
-
-lowerLegStandingR = KeyFrameList()
-lowerLegStandingR.add_keyframe(KeyFrame(0,-5))
-lowerLegStandingR.add_keyframe(KeyFrame(100,-15))
-lowerLegStandingR.add_keyframe(KeyFrame(200,-5))
-
-animations = [(upperLegKeyframesWalkingR,lowerLegKeyframesWalkingR, upperLegKeyframesWalkingL,lowerLegKeyframesWalkingL), (upperLegKeyframesCrouchingR,lowerLegKeyframesCrouchingR,upperLegKeyframesCrouchingL,lowerLegKeyframesCrouchingL), (upperLegStandingR, lowerLegStandingR, upperLegStandingL, lowerLegStandingL)]
-currentAnimation = animations[2]
-limbs = [upperLegR, lowerLegR, upperLegL, lowerLegL]
-oldAnimation = currentAnimation
-nextAnimation = currentAnimation
-timer = 0
-wasTransitioning = False
-changeTimer = -60
-animationOffset = 0
+body.add_animation_set('walking', {'upperLegL':upperLegKeyframesWalkingL, 'upperLegR':upperLegKeyframesWalkingR, 'lowerLegL':lowerLegKeyframesWalkingL, 'lowerLegR':lowerLegKeyframesWalkingR})
+body.add_animation_set('crouching', {'upperLegL':upperLegKeyframesCrouchingL, 'upperLegR':upperLegKeyframesCrouchingR, 'lowerLegL':lowerLegKeyframesCrouchingL, 'lowerLegR':lowerLegKeyframesCrouchingR})
+body.add_animation_set('standing', {'upperLegL':upperLegStandingL, 'upperLegR':upperLegStandingR, 'lowerLegL':lowerLegStandingL, 'lowerLegR':lowerLegStandingR})
+body.add_animation_set('running', {'upperLegL':upperLegRunningL, 'upperLegR':upperLegRunningR, 'lowerLegL':lowerLegRunningL, 'lowerLegR':lowerLegRunningR})
+body.current_animation = 'standing'
 clockity = time.Clock()
-WALKING = 0
-CROUCHING = 1
-STANDING = 2
 def set_animation(animationNumber):
     global changeTimer, oldAnimation, nextAnimation, wasTransitioning
     if currentAnimation != animations[animationNumber] and nextAnimation != animations[animationNumber]\
@@ -71,12 +66,8 @@ def set_animation(animationNumber):
         nextAnimation = animations[animationNumber]
         wasTransitioning = True
         print('switch', timer-changeTimer, animationNumber)
-def set_facing(left=False):
-    global wasTransitioning
-    if not wasTransitioning:
-        for i in limbs:
-            i.reflect = left
-keysDown = [False for i in range(4)]
+keysDown = [False for i in range(5)]
+timer = 0
 while running:
     for e in event.get():
         if e.type==QUIT:
@@ -90,38 +81,27 @@ while running:
                 keysDown[2] = e.type==KEYDOWN
             elif e.key == K_w:
                 keysDown[3] = e.type==KEYDOWN
+            elif e.key == K_LSHIFT:
+                keysDown[4] = e.type==KEYDOWN
     if keysDown[0]:
-        #if currentAnimation != animations[WALKING] and nextAnimation != animations[WALKING]:
-            set_facing(left = True)
-            set_animation(WALKING)
+            body.set_facing(left = True)
+            body.set_animation('running' if keysDown[4] else 'walking')
+            #set_animation(RUNNING if keysDown[4] else WALKING)
     elif keysDown[1]:
-        #if currentAnimation != animations[WALKING] and nextAnimation != animations[WALKING]:
-            set_facing(left = False)
-            set_animation(WALKING)
+            body.set_facing(left = False)
+            body.set_animation('running' if keysDown[4] else 'walking')
     if keysDown[2]:
-        #if currentAnimation != animations[CROUCHING] and nextAnimation != animations[CROUCHING]:
-            set_animation(CROUCHING)
+            body.set_animation('crouching')
     if not any(keysDown):
-        set_animation(STANDING)
-    #print(changeTimer, currentAnimation == animations[0])
-    for a,l, n in zip(currentAnimation, limbs, nextAnimation):
-        posData, doneSwitch = a.transition(n, changeTimer-animationOffset, timer-animationOffset, 30)
-        if doneSwitch:
-            if doneSwitch and wasTransitioning:
-                #print('switch done', timer-changeTimer)
-                currentAnimation = nextAnimation
-                wasTransitioning = False
-                animationOffset = timer
-                break
-            l.rotation = a.current_position(timer-animationOffset)[0]
-        else:
-            l.rotation = posData[0]
+        body.set_animation('standing')
+    #body.rotation+=1
     screen.fill((0,0,0))
-    screen.blit(aFont.render('%3d'%(timer%200),True,(255,255,255)),(10,10))
-    for i in limbs:
-        i.draw(screen)
-    lowerLimb = max(lowerLegL.get_tip_pos()[1],lowerLegR.get_tip_pos()[1])
-    draw.line(screen,(0,255,0), (0,lowerLimb),(800,lowerLimb),3)
+    #screen.blit(aFont.render('%3d'%(timer%200),True,(255,255,255)),(10,10))
+    body.update(timer)
+    body.draw(screen)
+    lowerLimb = lowerLegL if lowerLegL.get_tip_pos()[1]>lowerLegR.get_tip_pos()[1] else lowerLegR
+    draw.line(screen,(0,255,0), (0,lowerLimb.get_tip_pos()[1]),(800,lowerLimb.get_tip_pos()[1]),3)
+    #draw.line(screen,(0,0,255), (lowerLimb.get_tip_pos()[0], 0),(lowerLimb.get_tip_pos()[0], 600),3)
     display.flip()
     timer+=1
     clockity.tick(60)
