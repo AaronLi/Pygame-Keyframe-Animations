@@ -31,41 +31,9 @@ body.add_draw_limb(lowerLegR, 'lowerLegR')
 body.add_draw_limb(lowerLegL, 'lowerLegL')
 body.rotation = 270
 body.set_animation('standing')
-upperLegKeyframesWalkingR = KeyFrameList().load_from_file(open('keyframes/walking/upperLegR.txt'))
-upperLegKeyframesWalkingL = KeyFrameList().load_from_file(open('keyframes/walking/upperLegL.txt'))
-lowerLegKeyframesWalkingR = KeyFrameList().load_from_file(open('keyframes/walking/lowerLegR.txt'))
-lowerLegKeyframesWalkingL = KeyFrameList().load_from_file(open('keyframes/walking/lowerLegL.txt'))
-
-upperLegKeyframesCrouchingL = KeyFrameList().load_from_file(open('keyframes/crouching/upperLegCrouchingL.txt'))
-upperLegKeyframesCrouchingR = KeyFrameList().load_from_file(open('keyframes/crouching/upperLegCrouchingR.txt'))
-lowerLegKeyframesCrouchingL = KeyFrameList().load_from_file(open('keyframes/crouching/lowerLegCrouchingL.txt'))
-lowerLegKeyframesCrouchingR = KeyFrameList().load_from_file(open('keyframes/crouching/lowerLegCrouchingR.txt'))
-
-upperLegStandingL = KeyFrameList().load_from_file(open('keyframes/standing/upperLegL.txt'))
-upperLegStandingR = KeyFrameList().load_from_file(open('keyframes/standing/upperLegR.txt'))
-lowerLegStandingL = KeyFrameList().load_from_file(open('keyframes/standing/lowerLegL.txt'))
-lowerLegStandingR = KeyFrameList().load_from_file(open('keyframes/standing/lowerLegR.txt'))
-
-upperLegRunningL = KeyFrameList().load_from_file(open('keyframes/running/upperLegL.txt'))
-upperLegRunningR = KeyFrameList().load_from_file(open('keyframes/running/upperLegR.txt'))
-lowerLegRunningL = KeyFrameList().load_from_file(open('keyframes/running/lowerLegL.txt'))
-lowerLegRunningR = KeyFrameList().load_from_file(open('keyframes/running/lowerLegR.txt'))
-
-body.add_animation_set('walking', {'upperLegL':upperLegKeyframesWalkingL, 'upperLegR':upperLegKeyframesWalkingR, 'lowerLegL':lowerLegKeyframesWalkingL, 'lowerLegR':lowerLegKeyframesWalkingR})
-body.add_animation_set('crouching', {'upperLegL':upperLegKeyframesCrouchingL, 'upperLegR':upperLegKeyframesCrouchingR, 'lowerLegL':lowerLegKeyframesCrouchingL, 'lowerLegR':lowerLegKeyframesCrouchingR})
-body.add_animation_set('standing', {'upperLegL':upperLegStandingL, 'upperLegR':upperLegStandingR, 'lowerLegL':lowerLegStandingL, 'lowerLegR':lowerLegStandingR})
-body.add_animation_set('running', {'upperLegL':upperLegRunningL, 'upperLegR':upperLegRunningR, 'lowerLegL':lowerLegRunningL, 'lowerLegR':lowerLegRunningR})
 body.current_animation = 'standing'
 clockity = time.Clock()
-def set_animation(animationNumber):
-    global changeTimer, oldAnimation, nextAnimation, wasTransitioning
-    if currentAnimation != animations[animationNumber] and nextAnimation != animations[animationNumber]\
-     and not wasTransitioning:
-        changeTimer = timer
-        oldAnimation = currentAnimation
-        nextAnimation = animations[animationNumber]
-        wasTransitioning = True
-        print('switch', timer-changeTimer, animationNumber)
+body.load_from_file('./keyframes/body')
 keysDown = [False for i in range(5)]
 timer = 0
 while running:

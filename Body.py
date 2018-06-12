@@ -1,5 +1,7 @@
 from rotateMain import rotateBlit, _sind, _cosd, _atand
 from math import hypot
+from keyframelist import KeyFrameList
+import glob, os
 class Body:
     def __init__(self, sprite, x, y):
         self.limbs = {}
@@ -67,10 +69,28 @@ position is relative to center of body
         return self.rotation-270
     def add_animation_set(self, animationName, animationSet):
         '''
-animationSet should be in the style animationSet[limbAlias:animation]
+animationSet should be in the style animationSet{limbAlias:animation}
 '''
         self.animations[animationName] = animationSet
     def set_facing(self, left = False):
         if not self.wasTransitioning:
             for i in self.animation_limbs.values():
                 i.reflect= left
+    def load_from_file(self, directory):
+        '''
+        Directory should be in the structure parentDirectory/animationName/limbName.txt
+        animationName could be 'walking' or 'crouching'
+        limbName could be 'lowerArm' and should be a data file that can be loaded into a KeyFrameList
+        :param directory:
+        :return:
+        '''
+        folders = [i for i in os.walk(directory)]
+        for folder in folders:
+            animationName = folder[0].replace('\\','/').split('/')[-1]
+            animationData = folder[2]
+            animationSet = {}
+            print(folder)
+            for animationDataFileName in animationData:
+                with open(folder[0]+'/'+animationDataFileName) as dataFile:
+                    animationSet[animationDataFileName[:-4]] = KeyFrameList().load_from_file(dataFile)
+            self.add_animation_set(animationName, animationSet)
