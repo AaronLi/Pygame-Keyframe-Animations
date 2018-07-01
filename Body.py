@@ -1,4 +1,4 @@
-from rotateMain import rotateBlit, _sind, _cosd, _atand
+from point_rotate import rotateBlit, _sind, _cosd, _atand
 from math import hypot
 from keyframelist import KeyFrameList
 import glob, os

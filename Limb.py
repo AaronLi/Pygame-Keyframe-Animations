@@ -1,5 +1,5 @@
 from pygame import *
-from rotateMain import rotateBlit, _sind, _cosd
+from point_rotate import rotateBlit, _sind, _cosd
 class Limb:
     def __init__(self, x, y, rotation, length, sprite, rotatePoint):
         self.x = x
